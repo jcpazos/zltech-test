@@ -1,15 +1,24 @@
 const random = require("./utils");
 const myArgs = process.argv.slice(2);
-const rolls = myArgs[0] || 1;
-/*let n = 76;
-let arr = [...Array(n).keys()];
-arr.shift();
-n = 75;*/
+const readline = require("readline");
+const prompt = require("prompt");
+prompt.start();
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
-const generateArray = () => {
-  let n = 76;
+const rolls = myArgs[0] || 1;
+
+const generateArray = (n) => {
   let arr = [...Array(n).keys()];
   arr.shift();
+  return arr;
+};
+
+const generateArrayWithMin = (min = 1, n) => {
+  let arr = [...Array(n).keys()];
+  arr.splice(0, min);
   return arr;
 };
 
@@ -17,33 +26,56 @@ const callNumber = (arr) => {
   let n = arr.length;
   let randomPosition;
   let randomValue;
-  /*for (let i = 0; i < iters; i++) {
-    randomPosition = random.getRandomInt(n);
-    randomValue = arr.splice(randomPosition, 1);
-    console.log("new number!", randomValue[0]);
-    n--;
-  }*/
-  randomPosition = random.getRandomInt(n);
+  randomPosition = random.getRandomInt(0, n);
   randomValue = arr.splice(randomPosition, 1);
-  console.log("new number!", randomValue[0]);
-  n--;
+  return randomValue[0];
+};
+
+const fillCard = (pos, card, arr) => {
+  for (let i = 0; i < 5; i++) {
+    card[pos].push(callNumber(arr));
+  }
 };
 
 const generateCard = (name) => {
+  let arr;
   console.log("generating card for", name);
-  let card = [[]];
+  let card = [[], [], [], [], []];
   for (let i = 0; i < 5; i++) {
-    card[0].push(random.getRandomInt(16));
+    arr = generateArrayWithMin(i * 15 + 1, (i + 1) * 15 + 1);
+    fillCard(i, card, arr);
   }
+
+  return card;
 };
 
+function onErr(err) {
+  console.log(err);
+  return 1;
+}
+
 const main = () => {
-  let arr = generateArray();
-  for (let i = 0; i < rolls; i++) {
+  /*for (let i = 0; i < rolls; i++) {
     callNumber(arr);
-  }
-  console.log("done!");
-  console.log(arr);
+  }*/
+  let cards = [];
+  console.log("How many users do you want to generate cards for?");
+  prompt.get(["users"], function (err, result) {
+    if (err) {
+      return onErr(err);
+    }
+    console.log("res", result);
+    for (let i = 0; i < parseInt(result.users); i++) {
+      cards.push({ name: `user${i}`, card: generateCard(`user${i}`) });
+      console.log(cards[i]);
+    }
+
+    /*let arr = generateArray(76);
+    for (let i = 0; i < 75; i++) {
+      console.log("new number!", callNumber(arr));
+    }
+    console.log(arr);*/
+  });
 };
 
 if (require.main === module) {
