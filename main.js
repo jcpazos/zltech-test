@@ -1,4 +1,4 @@
-const utils = require("./utils");
+const random = require("./utils");
 const prompt = require("prompt");
 prompt.start();
 
